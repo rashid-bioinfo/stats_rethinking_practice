@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------#
-##-                     Synthetic People - Testing              -##
+##-                     Synthetic People - Estimator              -##
 # ----------------------------------------------------------------#
 
 ## ..................................................##
@@ -26,17 +26,18 @@ sim_HW <- function(S, a, b){
   data.frame(S,H,W)
 }
 
-# S <- rbern(100) + 1
-# dat <- sim_HW(S, b=c(0.5,0.6), a=c(0,0))
-# head(dat)
+S <- rbern(100) + 1
+dat <- sim_HW(S, b=c(0.5,0.6), a=c(0,0))
 
-# Female Sample, S=1
-S <- rep(1,100)
-simF <- sim_HW(S,b=c(0.5,0.6), a=c(0,0))
+# estimate posterior
 
-# Male Sample, S=2
-S <- rep(2,100)
-simM <- sim_HW(S,b=c(0.5,0.6), a=c(0,0))
+m_SW <- quap(
+  alist(
+    W ~ dnorm(mu, sigma),
+    mu <- a[S],
+    a[S] ~ dnorm(60,10),
+    sigma ~ dunif(0,10)
+  ), data = dat
+)
 
-# Effect of sex (male - female)
-mean(simM$W - simF$W)
+precis(m_SW, depth = 2)
